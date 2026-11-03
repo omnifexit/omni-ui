@@ -10,7 +10,9 @@ import {
     type ReactNode,
 } from "react";
 
-export type UiLinkComponent = ComponentType<ComponentProps<typeof NextLink>>;
+type UiLinkProps = Omit<ComponentProps<typeof NextLink>, "locale">;
+
+export type UiLinkComponent = ComponentType<UiLinkProps>;
 
 const UiLinkContext = createContext<UiLinkComponent>(NextLink);
 
@@ -19,6 +21,6 @@ export function UiLinkProvider({ component, children }: { component: UiLinkCompo
     return <UiLinkContext.Provider value={component}>{children}</UiLinkContext.Provider>;
 }
 
-export function UiLink(props: ComponentProps<typeof NextLink>) {
+export function UiLink(props: UiLinkProps) {
     return createElement(useContext(UiLinkContext), props);
 }
