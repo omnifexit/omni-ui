@@ -170,8 +170,9 @@
         }
     }
 
-    /* Prevent layout shift when Radix UI locks scroll (dropdowns/modals) */
+    /* The scrollbar stays when Radix UI locks scrolling, because html always shows one, so its space mustn't be added back. */
     body[data-scroll-locked] {
+        margin-right: 0 !important;
         padding-right: 0 !important;
     }
 }

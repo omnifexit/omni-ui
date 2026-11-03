@@ -312,7 +312,7 @@ function SidebarInput({ className, ...props }: React.ComponentProps<typeof Input
 function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
     return (
         <div
-            className={cn("flex flex-col gap-2 p-2", className)}
+            className={cn("flex min-h-16 flex-col justify-center gap-2 p-2", className)}
             data-slot="sidebar-header"
             data-sidebar="header"
             {...props}
