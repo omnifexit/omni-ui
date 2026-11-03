@@ -18,7 +18,7 @@ const ACTIONS =
 export function PageHeader({ title, description, action, className }: PageHeaderProps) {
     return (
         <div className={cn("flex flex-wrap items-center justify-between gap-4", className)}>
-            <div className="space-y-1">
+            <div className="max-w-full min-w-0 space-y-1 wrap-anywhere">
                 <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                 {description && <div className="text-muted-foreground">{description}</div>}
             </div>

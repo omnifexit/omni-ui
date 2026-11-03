@@ -12,7 +12,7 @@ interface FormActionsProps {
 
 export function FormActions({ submitLabel, cancelLabel, onCancel, submitting, disabled }: FormActionsProps) {
     return (
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="grid grid-cols-2 gap-3 sm:flex [&>*:last-child:nth-child(odd)]:col-span-2">
             <Button type="submit" disabled={submitting || disabled} className="w-full sm:w-auto">
                 {submitting ? <Loader2 className="animate-spin" /> : <Save />}
                 {submitLabel}
