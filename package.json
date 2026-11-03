@@ -1,6 +1,6 @@
 {
     "name": "@omnifexit/omni-ui",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "Shared UI for the OmnifexIT dashboards.",
     "type": "module",
     "exports": {
@@ -12,7 +12,10 @@
         "./url-state/provider": "./src/url-state-provider.tsx",
         "./lib/utils": "./src/lib/utils.ts",
         "./theme.css": "./src/styles/theme.css",
-        "./eslint": "./config/eslint.mjs"
+        "./eslint": "./config/eslint.mjs",
+        "./blocks/*": "./src/blocks/*.tsx",
+        "./templates/*": "./src/templates/*.tsx",
+        "./hooks/use-list-query": "./src/hooks/use-list-query.ts"
     },
     "files": [
         "src",
