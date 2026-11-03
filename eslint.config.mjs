@@ -1,9 +1,5 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import omni from "./config/eslint.mjs";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-export default defineConfig([
-    ...omni,
-    // This package is the one place allowed to use these directly.
-    { rules: { "no-restricted-imports": "off" } },
-    globalIgnores(["node_modules/**"]),
-]);
+export default defineConfig([...nextVitals, ...nextTs, globalIgnores(["node_modules/**"])]);

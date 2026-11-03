@@ -1,9 +1,6 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-
+// The shared rules. Each app adds these after its own eslint-config-next, so that ESLint and
+// everything it pulls in stay development-only dependencies of the app.
 const config = [
-    ...nextVitals,
-    ...nextTs,
     {
         rules: {
             "no-restricted-imports": [
