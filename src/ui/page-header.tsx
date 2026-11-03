@@ -40,7 +40,7 @@ export function PageHeaderSkeleton({
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1">
                 <Skeleton className="h-9 w-48" />
-                <Skeleton className="h-6 w-72" />
+                <Skeleton className="h-12 w-full max-w-72 sm:h-6" />
             </div>
             <div className="flex w-full flex-col gap-2 empty:hidden sm:w-auto sm:flex-row sm:items-center">
                 {hasSearch && <Skeleton className="h-10 w-full rounded-md sm:w-64" />}
