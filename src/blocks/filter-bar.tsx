@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { AsyncCombobox, type ComboboxOption } from "./async-combobox";
+import { FilterGroup } from "./filter-group";
 import { SearchInput } from "./search-input";
 
 interface Option {
@@ -100,121 +101,127 @@ export function FilterBar({
 
     return (
         <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <SearchInput
                     value={list.search}
                     onChange={list.setSearch}
                     placeholder={searchPlaceholder}
-                    className="min-w-56 flex-1"
+                    className="sm:min-w-56 sm:flex-1"
                 />
-                {filters.map((filter) => {
-                    const value = list.filters[filter.key] ?? "";
+                <FilterGroup>
+                    {filters.map((filter) => {
+                        const value = list.filters[filter.key] ?? "";
 
-                    switch (filter.type) {
-                        case "select":
-                            return (
-                                <div key={filter.key} className="w-44">
-                                    <Select
-                                        value={value || ALL}
-                                        onValueChange={(next) => list.setFilter(filter.key, next === ALL ? "" : next)}
-                                    >
-                                        <SelectTrigger aria-label={filter.label}>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value={ALL}>{`${allLabel}: ${filter.label}`}</SelectItem>
-                                            {filter.options.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            );
-                        case "multiSelect": {
-                            const selected = value ? value.split(",") : [];
-
-                            return (
-                                <DropdownMenu key={filter.key}>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            className="w-44 justify-between bg-card font-normal shadow-sm"
+                        switch (filter.type) {
+                            case "select":
+                                return (
+                                    <div key={filter.key} className="sm:w-44">
+                                        <Select
+                                            value={value || ALL}
+                                            onValueChange={(next) =>
+                                                list.setFilter(filter.key, next === ALL ? "" : next)
+                                            }
                                         >
-                                            <span className="truncate">
-                                                {selected.length
-                                                    ? `${filter.label} (${selected.length})`
-                                                    : filter.label}
-                                            </span>
-                                            <ChevronDown className="text-muted-foreground" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start">
-                                        {filter.options.map((option) => (
-                                            <DropdownMenuCheckboxItem
-                                                key={option.value}
-                                                checked={selected.includes(option.value)}
-                                                onSelect={(event) => event.preventDefault()}
-                                                onCheckedChange={(checked) =>
-                                                    list.setFilter(
-                                                        filter.key,
-                                                        (checked
-                                                            ? [...selected, option.value]
-                                                            : selected.filter((other) => other !== option.value)
-                                                        ).join(","),
-                                                    )
-                                                }
+                                            <SelectTrigger aria-label={filter.label}>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={ALL}>{`${allLabel}: ${filter.label}`}</SelectItem>
+                                                {filter.options.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                );
+                            case "multiSelect": {
+                                const selected = value ? value.split(",") : [];
+
+                                return (
+                                    <DropdownMenu key={filter.key}>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-between bg-card font-normal shadow-sm sm:w-44"
                                             >
-                                                {option.label}
-                                            </DropdownMenuCheckboxItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            );
+                                                <span className="truncate">
+                                                    {selected.length
+                                                        ? `${filter.label} (${selected.length})`
+                                                        : filter.label}
+                                                </span>
+                                                <ChevronDown className="text-muted-foreground" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="start">
+                                            {filter.options.map((option) => (
+                                                <DropdownMenuCheckboxItem
+                                                    key={option.value}
+                                                    checked={selected.includes(option.value)}
+                                                    onSelect={(event) => event.preventDefault()}
+                                                    onCheckedChange={(checked) =>
+                                                        list.setFilter(
+                                                            filter.key,
+                                                            (checked
+                                                                ? [...selected, option.value]
+                                                                : selected.filter((other) => other !== option.value)
+                                                            ).join(","),
+                                                        )
+                                                    }
+                                                >
+                                                    {option.label}
+                                                </DropdownMenuCheckboxItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                );
+                            }
+                            case "combobox":
+                                return (
+                                    <div key={filter.key} className="sm:w-52">
+                                        <AsyncCombobox
+                                            value={value || null}
+                                            valueLabel={comboboxLabels[value]}
+                                            placeholder={filter.label}
+                                            search={filter.search}
+                                            searchPlaceholder={filter.searchPlaceholder}
+                                            emptyLabel={filter.emptyLabel}
+                                            onChange={(option) => {
+                                                if (option)
+                                                    setComboboxLabels((labels) => ({
+                                                        ...labels,
+                                                        [option.value]: option.label,
+                                                    }));
+                                                list.setFilter(filter.key, option?.value ?? "");
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            case "dateRange":
+                                return (
+                                    <div key={filter.key} className="col-span-2 flex items-center gap-2">
+                                        <Input
+                                            type="date"
+                                            aria-label={`${filter.label}: ${filter.fromLabel}`}
+                                            className="min-w-0 flex-1 bg-card sm:w-40 sm:flex-none"
+                                            value={list.filters[`${filter.key}_from`] ?? ""}
+                                            onChange={(event) =>
+                                                list.setFilter(`${filter.key}_from`, event.target.value)
+                                            }
+                                        />
+                                        <Input
+                                            type="date"
+                                            aria-label={`${filter.label}: ${filter.toLabel}`}
+                                            className="min-w-0 flex-1 bg-card sm:w-40 sm:flex-none"
+                                            value={list.filters[`${filter.key}_to`] ?? ""}
+                                            onChange={(event) => list.setFilter(`${filter.key}_to`, event.target.value)}
+                                        />
+                                    </div>
+                                );
                         }
-                        case "combobox":
-                            return (
-                                <div key={filter.key} className="w-52">
-                                    <AsyncCombobox
-                                        value={value || null}
-                                        valueLabel={comboboxLabels[value]}
-                                        placeholder={filter.label}
-                                        search={filter.search}
-                                        searchPlaceholder={filter.searchPlaceholder}
-                                        emptyLabel={filter.emptyLabel}
-                                        onChange={(option) => {
-                                            if (option)
-                                                setComboboxLabels((labels) => ({
-                                                    ...labels,
-                                                    [option.value]: option.label,
-                                                }));
-                                            list.setFilter(filter.key, option?.value ?? "");
-                                        }}
-                                    />
-                                </div>
-                            );
-                        case "dateRange":
-                            return (
-                                <div key={filter.key} className="flex items-center gap-2">
-                                    <Input
-                                        type="date"
-                                        aria-label={`${filter.label}: ${filter.fromLabel}`}
-                                        className="w-40 bg-card"
-                                        value={list.filters[`${filter.key}_from`] ?? ""}
-                                        onChange={(event) => list.setFilter(`${filter.key}_from`, event.target.value)}
-                                    />
-                                    <Input
-                                        type="date"
-                                        aria-label={`${filter.label}: ${filter.toLabel}`}
-                                        className="w-40 bg-card"
-                                        value={list.filters[`${filter.key}_to`] ?? ""}
-                                        onChange={(event) => list.setFilter(`${filter.key}_to`, event.target.value)}
-                                    />
-                                </div>
-                            );
-                    }
-                })}
+                    })}
+                </FilterGroup>
             </div>
             {chips.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
