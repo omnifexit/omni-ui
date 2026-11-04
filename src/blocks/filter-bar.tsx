@@ -3,10 +3,12 @@
 import { useState, type ReactNode } from "react";
 import { ChevronDown, X } from "lucide-react";
 import type { ListQuery } from "../hooks/use-list-query";
+import { cn } from "../lib/utils";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Skeleton } from "../ui/skeleton";
 import { AsyncCombobox, type ComboboxOption } from "./async-combobox";
 import { FilterGroup } from "./filter-group";
 import { SearchInput } from "./search-input";
@@ -27,12 +29,22 @@ export type FilterDefinition =
           searchPlaceholder?: string;
           emptyLabel: ReactNode;
       }
-    | { key: string; label: string; type: "dateRange"; fromLabel: string; toLabel: string };
+    | { key: string; label?: string; type: "dateRange"; fromLabel: string; toLabel: string };
 
 interface FilterBarProps {
     list: ListQuery;
     filters?: FilterDefinition[];
     searchPlaceholder?: string;
+    /** Leave the search box out, for a list with nothing to search like a calendar. */
+    withoutSearch?: boolean;
+    /**
+     * Phones have no column headers to press, so they get a dropdown with these instead.
+     * Leave it out on a list that can't be sorted.
+     */
+    sortOptions?: Option[];
+    sortLabel?: string;
+    /** Show the sort dropdown on every screen, for a list of cards with no headers at all. */
+    alwaysShowSort?: boolean;
     allLabel: string;
     clearLabel: ReactNode;
     /** Removes a chip, for screen readers. */
@@ -41,10 +53,20 @@ interface FilterBarProps {
 
 const ALL = "__all";
 
+// The search box takes nearly all the spare room in a row. Filters that wrap onto a row
+// of their own share it instead, so a row never ends in an empty gap.
+const SEARCH_WIDTH = "sm:grow-100 sm:basis-56";
+const FILTER_WIDTH = "sm:flex-1 sm:basis-40";
+const DATE_RANGE_WIDTH = "sm:flex-2 sm:basis-80";
+
 export function FilterBar({
     list,
     filters = [],
     searchPlaceholder,
+    withoutSearch,
+    sortOptions,
+    sortLabel,
+    alwaysShowSort,
     allLabel,
     clearLabel,
     removeLabel,
@@ -53,22 +75,8 @@ export function FilterBar({
     const [comboboxLabels, setComboboxLabels] = useState<Record<string, string>>({});
 
     const chips = filters.flatMap((filter) => {
-        if (filter.type === "dateRange") {
-            return [
-                {
-                    id: `${filter.key}_from`,
-                    text: `${filter.label}: ${filter.fromLabel} ${list.filters[`${filter.key}_from`]}`,
-                    on: list.filters[`${filter.key}_from`],
-                    clear: () => list.setFilter(`${filter.key}_from`, ""),
-                },
-                {
-                    id: `${filter.key}_to`,
-                    text: `${filter.label}: ${filter.toLabel} ${list.filters[`${filter.key}_to`]}`,
-                    on: list.filters[`${filter.key}_to`],
-                    clear: () => list.setFilter(`${filter.key}_to`, ""),
-                },
-            ].filter((chip) => chip.on);
-        }
+        // A dropdown or date box already shows what's picked, so it needs no chip as well.
+        if (filter.type === "dateRange" || filter.type === "select") return [];
 
         const value = list.filters[filter.key];
         if (!value) return [];
@@ -99,15 +107,34 @@ export function FilterBar({
         }));
     });
 
+    const hasFilters = list.search.trim() !== "" || Object.keys(list.filters).length > 0;
+
+    const clearButton = (
+        <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 text-muted-foreground"
+            disabled={!hasFilters}
+            onClick={list.clearFilters}
+        >
+            <X />
+            {clearLabel}
+        </Button>
+    );
+
     return (
         <div className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                <SearchInput
-                    value={list.search}
-                    onChange={list.setSearch}
-                    placeholder={searchPlaceholder}
-                    className="sm:min-w-56 sm:flex-1"
-                />
+                {!withoutSearch && (
+                    <SearchInput
+                        value={list.search}
+                        onChange={list.setSearch}
+                        placeholder={searchPlaceholder}
+                        className={SEARCH_WIDTH}
+                        trailing={hasFilters && clearButton}
+                    />
+                )}
                 <FilterGroup>
                     {filters.map((filter) => {
                         const value = list.filters[filter.key] ?? "";
@@ -115,7 +142,7 @@ export function FilterBar({
                         switch (filter.type) {
                             case "select":
                                 return (
-                                    <div key={filter.key} className="sm:w-44">
+                                    <div key={filter.key} className={FILTER_WIDTH}>
                                         <Select
                                             value={value || ALL}
                                             onValueChange={(next) =>
@@ -123,10 +150,17 @@ export function FilterBar({
                                             }
                                         >
                                             <SelectTrigger aria-label={filter.label}>
-                                                <SelectValue />
+                                                <span className="flex min-w-0 gap-1">
+                                                    <span className="shrink-0 text-muted-foreground">
+                                                        {filter.label}:
+                                                    </span>
+                                                    <span className="min-w-0 truncate">
+                                                        <SelectValue />
+                                                    </span>
+                                                </span>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value={ALL}>{`${allLabel}: ${filter.label}`}</SelectItem>
+                                                <SelectItem value={ALL}>{allLabel}</SelectItem>
                                                 {filter.options.map((option) => (
                                                     <SelectItem key={option.value} value={option.value}>
                                                         {option.label}
@@ -144,7 +178,10 @@ export function FilterBar({
                                         <DropdownMenuTrigger asChild>
                                             <Button
                                                 variant="outline"
-                                                className="w-full justify-between bg-card font-normal shadow-sm sm:w-44"
+                                                className={cn(
+                                                    "w-full justify-between bg-card font-normal shadow-sm",
+                                                    FILTER_WIDTH,
+                                                )}
                                             >
                                                 <span className="truncate">
                                                     {selected.length
@@ -179,7 +216,7 @@ export function FilterBar({
                             }
                             case "combobox":
                                 return (
-                                    <div key={filter.key} className="sm:w-52">
+                                    <div key={filter.key} className={FILTER_WIDTH}>
                                         <AsyncCombobox
                                             value={value || null}
                                             valueLabel={comboboxLabels[value]}
@@ -200,28 +237,64 @@ export function FilterBar({
                                 );
                             case "dateRange":
                                 return (
-                                    <div key={filter.key} className="col-span-2 flex items-center gap-2">
-                                        <Input
-                                            type="date"
-                                            aria-label={`${filter.label}: ${filter.fromLabel}`}
-                                            className="min-w-0 flex-1 bg-card sm:w-40 sm:flex-none"
-                                            value={list.filters[`${filter.key}_from`] ?? ""}
-                                            onChange={(event) =>
-                                                list.setFilter(`${filter.key}_from`, event.target.value)
-                                            }
-                                        />
-                                        <Input
-                                            type="date"
-                                            aria-label={`${filter.label}: ${filter.toLabel}`}
-                                            className="min-w-0 flex-1 bg-card sm:w-40 sm:flex-none"
-                                            value={list.filters[`${filter.key}_to`] ?? ""}
-                                            onChange={(event) => list.setFilter(`${filter.key}_to`, event.target.value)}
-                                        />
+                                    <div
+                                        key={filter.key}
+                                        className={cn("col-span-2 flex items-center gap-2", DATE_RANGE_WIDTH)}
+                                    >
+                                        <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-muted-foreground">
+                                            <span className="shrink-0">{filter.fromLabel}</span>
+                                            <Input
+                                                type="date"
+                                                className="min-w-0 flex-1 bg-card text-foreground"
+                                                value={list.filters[`${filter.key}_from`] ?? ""}
+                                                onChange={(event) =>
+                                                    list.setFilter(`${filter.key}_from`, event.target.value)
+                                                }
+                                            />
+                                        </label>
+                                        <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-muted-foreground">
+                                            <span className="shrink-0">{filter.toLabel}</span>
+                                            <Input
+                                                type="date"
+                                                className="min-w-0 flex-1 bg-card text-foreground"
+                                                value={list.filters[`${filter.key}_to`] ?? ""}
+                                                onChange={(event) =>
+                                                    list.setFilter(`${filter.key}_to`, event.target.value)
+                                                }
+                                            />
+                                        </label>
                                     </div>
                                 );
                         }
                     })}
+                    {sortOptions && sortLabel && (
+                        <div className={cn(FILTER_WIDTH, !alwaysShowSort && "md:hidden")}>
+                            <Select value={list.sort} onValueChange={list.setSort}>
+                                <SelectTrigger aria-label={sortLabel}>
+                                    <span className="flex min-w-0 gap-1">
+                                        <span className="shrink-0 text-muted-foreground">{sortLabel}:</span>
+                                        <span className="min-w-0 truncate">
+                                            <SelectValue />
+                                        </span>
+                                    </span>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {sortOptions.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                 </FilterGroup>
+                {/* Stays in place on bigger screens, so using it doesn't resize the filters. */}
+                {withoutSearch && (
+                    <div className={cn("shrink-0 max-sm:[&>button]:w-full", !hasFilters && "max-sm:hidden")}>
+                        {clearButton}
+                    </div>
+                )}
             </div>
             {chips.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
@@ -241,11 +314,42 @@ export function FilterBar({
                             </button>
                         </span>
                     ))}
-                    <Button variant="link" size="sm" className="h-auto px-1 py-0 text-xs" onClick={list.clearFilters}>
-                        {clearLabel}
-                    </Button>
                 </div>
             )}
+        </div>
+    );
+}
+
+interface FilterBarSkeletonProps {
+    /** How many dropdowns the bar has. */
+    filters?: number;
+    withDateRange?: boolean;
+    withoutSearch?: boolean;
+    withSort?: boolean;
+    alwaysShowSort?: boolean;
+}
+
+/** A FilterBar while the page loads, at the same size so nothing jumps. */
+export function FilterBarSkeleton({
+    filters = 0,
+    withDateRange,
+    withoutSearch,
+    withSort,
+    alwaysShowSort,
+}: FilterBarSkeletonProps) {
+    return (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            {!withoutSearch && <Skeleton className={cn("h-10 rounded-md", SEARCH_WIDTH)} />}
+            <FilterGroup>
+                {Array.from({ length: filters }, (_, index) => (
+                    <Skeleton key={index} className={cn("h-10 rounded-md", FILTER_WIDTH)} />
+                ))}
+                {withDateRange && <Skeleton className={cn("col-span-2 h-10 rounded-md", DATE_RANGE_WIDTH)} />}
+                {withSort && (
+                    <Skeleton className={cn("h-10 rounded-md", FILTER_WIDTH, !alwaysShowSort && "md:hidden")} />
+                )}
+            </FilterGroup>
+            {withoutSearch && <div className="hidden h-8 w-20 shrink-0 sm:block" />}
         </div>
     );
 }

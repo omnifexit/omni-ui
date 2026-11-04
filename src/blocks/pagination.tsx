@@ -15,7 +15,7 @@ export function Pagination({ page, lastPage, onChange, summary, previousLabel, n
     if (lastPage <= 1) return null;
 
     return (
-        <div className="flex items-center justify-between gap-4 border-t border-border px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <span className="text-sm text-muted-foreground">{summary}</span>
             <div className="flex gap-2">
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)}>
