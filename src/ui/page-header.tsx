@@ -6,6 +6,8 @@ interface PageHeaderProps {
     title: React.ReactNode;
     description?: React.ReactNode;
     action?: React.ReactNode;
+    /** For a page that shows the same buttons somewhere else on phones. */
+    actionsHiddenOnPhones?: boolean;
     className?: string;
 }
 
@@ -15,14 +17,14 @@ const ACTIONS =
     "grid w-full grid-cols-2 gap-2 empty:hidden sm:flex sm:w-auto sm:items-center " +
     "[&>*:last-child:nth-child(odd)]:col-span-2 max-sm:[&>a>button]:w-full max-sm:[&>button]:w-full";
 
-export function PageHeader({ title, description, action, className }: PageHeaderProps) {
+export function PageHeader({ title, description, action, actionsHiddenOnPhones, className }: PageHeaderProps) {
     return (
         <div className={cn("flex flex-wrap items-center justify-between gap-4", className)}>
             <div className="max-w-full min-w-0 space-y-1 wrap-anywhere">
                 <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                 {description && <div className="text-muted-foreground">{description}</div>}
             </div>
-            <div data-slot="page-actions" className={ACTIONS}>
+            <div data-slot="page-actions" className={cn(ACTIONS, actionsHiddenOnPhones && "max-md:hidden")}>
                 {action}
             </div>
         </div>

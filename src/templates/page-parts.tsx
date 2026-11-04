@@ -12,16 +12,3 @@ export function HeaderSkeleton() {
         </div>
     );
 }
-
-export function FieldsSkeleton({ rows = 4 }: { rows?: number }) {
-    return (
-        <div className="space-y-4">
-            {Array.from({ length: rows }, (_, index) => (
-                <div key={index} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-10 w-full" />
-                </div>
-            ))}
-        </div>
-    );
-}
