@@ -31,6 +31,14 @@ const config = [
                     message: "Use text-2xs, text-xs or another size from the theme.",
                 },
                 {
+                    selector: "JSXOpeningElement[name.name='Label'] > JSXAttribute[name.name='className']",
+                    message: "Label has one look. Put layout classes on the element around it.",
+                },
+                {
+                    selector: "JSXOpeningElement[name.name='Table']",
+                    message: "Use DataTable.",
+                },
+                {
                     selector: "JSXOpeningElement[name.name='DialogContent']",
                     message: "Forms get their own page. Short confirmations use ConfirmDialog.",
                 },
