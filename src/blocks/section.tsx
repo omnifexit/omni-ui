@@ -29,7 +29,7 @@ export function Section({ title, description, icon, actions, footer, className, 
                     {actions && <div data-slot="section-actions">{actions}</div>}
                 </CardHeader>
             )}
-            <CardContent className="space-y-4 pb-0">{children}</CardContent>
+            <CardContent className="space-y-4">{children}</CardContent>
             {footer && <div className="border-t border-border px-6 pt-6">{footer}</div>}
         </Card>
     );

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BackLink } from "../blocks/back-link";
+import { cn } from "../lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { PageHeader } from "../ui/page-header";
 import { BackLinkSkeleton, HeaderSkeleton } from "./page-parts";
@@ -47,15 +48,29 @@ export function DetailPage({
     );
 }
 
-export function DetailPageSkeleton({ hasSide = true }: { hasSide?: boolean }) {
+interface DetailPageSkeletonProps {
+    hasSide?: boolean;
+    /** The height of the top boxes, like "h-38", to match the real page. */
+    height?: string;
+    /** Comments and activity underneath, across the full width. */
+    hasTabs?: boolean;
+}
+
+export function DetailPageSkeleton({ hasSide = true, height = "h-96", hasTabs }: DetailPageSkeletonProps) {
     return (
         <div className="space-y-6">
             <BackLinkSkeleton />
             <HeaderSkeleton />
             <div className={hasSide ? "grid gap-6 lg:grid-cols-3" : undefined}>
-                <Skeleton className="h-96 rounded-xl lg:col-span-2" />
-                {hasSide && <Skeleton className="h-64 rounded-xl" />}
+                <Skeleton className={cn("rounded-xl lg:col-span-2", height)} />
+                {hasSide && <Skeleton className={cn("rounded-xl", height)} />}
             </div>
+            {hasTabs && (
+                <div className="space-y-4">
+                    <Skeleton className="h-9 w-48 rounded-md" />
+                    <Skeleton className="h-25 rounded-md" />
+                </div>
+            )}
         </div>
     );
 }
