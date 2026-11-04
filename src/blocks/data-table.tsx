@@ -16,7 +16,7 @@ export interface DataTableColumn<Row> {
     align?: "left" | "right" | "center";
     className?: string;
     /** Where this goes on a phone's card. A field shows its header next to its value. */
-    card?: "title" | "subtitle" | "field" | "meta" | "hidden";
+    card?: "title" | "subtitle" | "aside" | "field" | "meta" | "metaEnd" | "hidden";
     /** What to show on the card instead of `cell`. */
     cardCell?: (row: Row) => ReactNode;
     /** Only on the card, like a detail that doesn't need its own column. */
@@ -78,10 +78,10 @@ export function DataTable<Row>({
                     ? Array.from({ length: loadingRows }, (_, index) => (
                           <div
                               key={`skeleton-${index}`}
-                              className="rounded-xl border border-border bg-card p-4 shadow-sm"
+                              className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm"
                           >
-                              <div className="flex items-start gap-3">
-                                  <div className="min-w-0 flex-1 space-y-1">
+                              <div className="flex items-center gap-3">
+                                  <div className="min-w-0 flex-1 space-y-0.5">
                                       {onCard("title").map((column) => (
                                           <div key={column.key}>
                                               <Skeleton className="h-6 w-40" />
@@ -93,10 +93,17 @@ export function DataTable<Row>({
                                           </div>
                                       ))}
                                   </div>
-                                  {rowActions && <Skeleton className="h-8 w-16" />}
+                                  {(rowActions || onCard("aside").length > 0) && (
+                                      <div className="flex shrink-0 flex-col items-end gap-1.5">
+                                          {rowActions && <Skeleton className="h-8 w-16" />}
+                                          {onCard("aside").length > 0 && (
+                                              <Skeleton className="h-5.5 w-24 rounded-full" />
+                                          )}
+                                      </div>
+                                  )}
                               </div>
                               {onCard("field").length > 0 && (
-                                  <div className="mt-3 space-y-1">
+                                  <div className="mt-2 space-y-1">
                                       {onCard("field").map((column) => (
                                           <div key={column.key} className="flex items-center justify-between gap-3">
                                               <Skeleton className="h-5 w-20" />
@@ -105,13 +112,14 @@ export function DataTable<Row>({
                                       ))}
                                   </div>
                               )}
-                              {onCard("meta").length > 0 && (
-                                  <div className="mt-3 flex min-h-[35px] flex-wrap items-center gap-2 border-t border-border pt-3">
+                              {(onCard("meta").length > 0 || onCard("metaEnd").length > 0) && (
+                                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                       {onCard("meta").map((column) => (
                                           <div key={column.key}>
                                               {column.skeleton ?? <Skeleton className="h-5.5 w-16 rounded-full" />}
                                           </div>
                                       ))}
+                                      {onCard("metaEnd").length > 0 && <Skeleton className="ml-auto h-5 w-24" />}
                                   </div>
                               )}
                           </div>
@@ -125,7 +133,7 @@ export function DataTable<Row>({
                               <div
                                   key={rowKey(row)}
                                   className={cn(
-                                      "relative rounded-xl border border-border bg-card p-4 shadow-sm",
+                                      "relative rounded-xl border border-border bg-card px-4 py-3 shadow-sm",
                                       href && "transition-colors hover:border-primary/30",
                                   )}
                               >
@@ -136,8 +144,8 @@ export function DataTable<Row>({
                                           className="absolute inset-0 rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                       />
                                   )}
-                                  <div className="flex items-start gap-3">
-                                      <div className="min-w-0 flex-1 space-y-1">
+                                  <div className="flex items-center gap-3">
+                                      <div className="min-w-0 flex-1 space-y-0.5">
                                           {onCard("title").map((column) => (
                                               <div
                                                   key={column.key}
@@ -161,14 +169,30 @@ export function DataTable<Row>({
                                               </div>
                                           ))}
                                       </div>
-                                      {rowActions && (
-                                          <div className="relative z-10 flex shrink-0 items-center gap-1">
-                                              {rowActions(row)}
+                                      {(rowActions || onCard("aside").length > 0) && (
+                                          <div className="flex max-w-1/2 shrink-0 flex-col items-end gap-1.5">
+                                              {rowActions && (
+                                                  <div className="relative z-10 flex items-center gap-1">
+                                                      {rowActions(row)}
+                                                  </div>
+                                              )}
+                                              {onCard("aside").length > 0 && (
+                                                  <div className="flex flex-wrap justify-end gap-1.5">
+                                                      {onCard("aside").map((column) => (
+                                                          <div
+                                                              key={column.key}
+                                                              className={cn("min-w-0", above(column))}
+                                                          >
+                                                              {content(column)}
+                                                          </div>
+                                                      ))}
+                                                  </div>
+                                              )}
                                           </div>
                                       )}
                                   </div>
                                   {onCard("field").length > 0 && (
-                                      <dl className="mt-3 space-y-1 text-sm">
+                                      <dl className="mt-2 space-y-1 text-sm">
                                           {onCard("field").map((column) => (
                                               <div key={column.key} className="flex items-center justify-between gap-3">
                                                   <dt className="shrink-0 text-muted-foreground">{column.header}</dt>
@@ -179,13 +203,22 @@ export function DataTable<Row>({
                                           ))}
                                       </dl>
                                   )}
-                                  {onCard("meta").length > 0 && (
-                                      <div className="mt-3 flex min-h-[35px] flex-wrap items-center gap-2 border-t border-border pt-3">
+                                  {(onCard("meta").length > 0 || onCard("metaEnd").length > 0) && (
+                                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                           {onCard("meta").map((column) => (
-                                              <div key={column.key} className={cn("min-w-0", above(column))}>
+                                              <div key={column.key} className={cn("flex min-w-0 items-center", above(column))}>
                                                   {content(column)}
                                               </div>
                                           ))}
+                                          {onCard("metaEnd").length > 0 && (
+                                              <div className="ml-auto flex min-w-0 items-center gap-1.5">
+                                                  {onCard("metaEnd").map((column) => (
+                                                      <div key={column.key} className={cn("flex min-w-0 items-center", above(column))}>
+                                                          {content(column)}
+                                                      </div>
+                                                  ))}
+                                              </div>
+                                          )}
                                       </div>
                                   )}
                               </div>

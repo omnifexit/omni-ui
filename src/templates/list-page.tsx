@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-import { PageHeader } from "../ui/page-header";
+import { PageHeader, PageHeaderSkeleton } from "../ui/page-header";
 import { Skeleton } from "../ui/skeleton";
-import { HeaderSkeleton } from "./page-parts";
 
 interface ListPageProps {
     title: ReactNode;
@@ -21,16 +20,27 @@ export function ListPage({ title, description, actions, filters, children }: Lis
     );
 }
 
-export function ListPageSkeleton({ rows = 8 }: { rows?: number }) {
+interface ListPageSkeletonProps {
+    hasAction?: boolean;
+    rows?: number;
+    /** The page's own filter and table skeletons, so nothing jumps when it loads. */
+    children?: ReactNode;
+}
+
+export function ListPageSkeleton({ hasAction, rows = 8, children }: ListPageSkeletonProps) {
     return (
         <div className="space-y-6">
-            <HeaderSkeleton />
-            <Skeleton className="h-10 w-full" />
-            <div className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-                {Array.from({ length: rows }, (_, index) => (
-                    <Skeleton key={index} className="h-8 w-full" />
-                ))}
-            </div>
+            <PageHeaderSkeleton hasAction={hasAction} />
+            {children ?? (
+                <>
+                    <Skeleton className="h-10 w-full" />
+                    <div className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+                        {Array.from({ length: rows }, (_, index) => (
+                            <Skeleton key={index} className="h-8 w-full" />
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }

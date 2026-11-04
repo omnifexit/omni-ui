@@ -14,9 +14,12 @@ export interface ListQuery {
     search: string;
     setSearch: (search: string) => void;
     filters: Record<string, string>;
-    /** An empty value removes the filter. Goes back to page 1. */
+    /** An empty value means "All". Goes back to page 1. */
     setFilter: (key: string, value: string) => void;
+    /** Back to what the list starts with. */
     clearFilters: () => void;
+    /** Whether the search or filters differ from what the list starts with. */
+    isFiltered: boolean;
     /** Ready for the API: `{ page: 2, sort: "-created_at", "filter[status]": "open" }`. */
     params: Record<string, string | number>;
 }
@@ -25,22 +28,35 @@ interface UseListQueryOptions {
     defaultSort?: string;
     /** The names of every filter this list has. Date ranges use `<key>_from` and `<key>_to`. */
     filterKeys?: string[];
+    /**
+     * What the list shows until someone changes it, like `{ assigned_to: "me", status: "active" }`. Seeing more takes
+     * a deliberate step. These values stay out of the URL, and "All" is stored in it as `all`.
+     */
+    defaultFilters?: Record<string, string>;
 }
 
 /** Keeps a list's page, search, filters and sorting in the URL. It makes no API calls. */
-export function useListQuery({ defaultSort = "", filterKeys = [] }: UseListQueryOptions = {}): ListQuery {
+const ALL = "all";
+
+export function useListQuery({
+    defaultSort = "",
+    filterKeys = [],
+    defaultFilters,
+}: UseListQueryOptions = {}): ListQuery {
     // Pages pass a new array on every render, so compare the keys by their text.
     const keyList = filterKeys.join();
     const keys = useMemo(() => (keyList ? keyList.split(",") : []), [keyList]);
+    const defaultsText = JSON.stringify(defaultFilters ?? {});
+    const defaults = useMemo(() => JSON.parse(defaultsText) as Record<string, string>, [defaultsText]);
 
     const parsers = useMemo(
         () => ({
             page: parseAsInteger.withDefault(1),
             sort: parseAsString.withDefault(defaultSort),
             q: parseAsString.withDefault(""),
-            ...Object.fromEntries(keys.map((key) => [key, parseAsString.withDefault("")])),
+            ...Object.fromEntries(keys.map((key) => [key, parseAsString.withDefault(defaults[key] ?? "")])),
         }),
-        [defaultSort, keys],
+        [defaultSort, keys, defaults],
     );
 
     const [state, setState] = useQueryStates(parsers);
@@ -57,18 +73,23 @@ export function useListQuery({ defaultSort = "", filterKeys = [] }: UseListQuery
 
     const filters = useMemo(() => {
         const values = state as unknown as Record<string, string>;
-        return Object.fromEntries(keys.filter((key) => values[key]).map((key) => [key, values[key]]));
+        return Object.fromEntries(
+            keys.filter((key) => values[key] && values[key] !== ALL).map((key) => [key, values[key]]),
+        );
     }, [state, keys]);
 
     const setFilter = useCallback(
-        (key: string, value: string) => void setState({ [key]: value || null, page: null } as never),
-        [setState],
+        (key: string, value: string) =>
+            void setState({ [key]: value || (defaults[key] ? ALL : null), page: null } as never),
+        [setState, defaults],
     );
 
     const clearFilters = useCallback(() => {
         setSearchValue("");
         void setState({ q: null, page: null, ...Object.fromEntries(keys.map((key) => [key, null])) } as never);
     }, [setState, keys]);
+
+    const isFiltered = search.trim() !== "" || keys.some((key) => (filters[key] ?? "") !== (defaults[key] ?? ""));
 
     const params = useMemo(() => {
         const result: Record<string, string | number> = { page };
@@ -90,6 +111,7 @@ export function useListQuery({ defaultSort = "", filterKeys = [] }: UseListQuery
         filters,
         setFilter,
         clearFilters,
+        isFiltered,
         params,
     };
 }

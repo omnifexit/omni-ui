@@ -107,7 +107,7 @@ export function FilterBar({
         }));
     });
 
-    const hasFilters = list.search.trim() !== "" || Object.keys(list.filters).length > 0;
+    const hasFilters = list.isFiltered;
 
     const clearButton = (
         <Button

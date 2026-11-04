@@ -5,6 +5,9 @@ import { File as FileIcon, Paperclip, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 
+/** What the picker offers. OmniCore's Attachments class has the same list and makes the real decision. */
+export const ATTACHMENT_ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.gif,.webp,.zip,.html,.htm";
+
 interface AttachmentsFieldProps {
     label: ReactNode;
     addLabel: ReactNode;
@@ -92,7 +95,14 @@ export function AttachmentsField({
                     <Paperclip className="size-4" />
                     {addLabel}
                 </button>
-                <input type="file" multiple className="hidden" ref={inputRef} onChange={onAdd} />
+                <input
+                    type="file"
+                    multiple
+                    accept={ATTACHMENT_ACCEPT}
+                    className="hidden"
+                    ref={inputRef}
+                    onChange={onAdd}
+                />
             </div>
         </div>
     );
