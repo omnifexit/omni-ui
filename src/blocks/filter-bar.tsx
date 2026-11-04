@@ -239,10 +239,13 @@ export function FilterBar({
                                 return (
                                     <div
                                         key={filter.key}
-                                        className={cn("col-span-2 flex items-center gap-2", DATE_RANGE_WIDTH)}
+                                        className={cn(
+                                            "col-span-2 flex flex-col gap-2 sm:flex-row sm:items-center",
+                                            DATE_RANGE_WIDTH,
+                                        )}
                                     >
-                                        <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-muted-foreground">
-                                            <span className="shrink-0">{filter.fromLabel}</span>
+                                        <label className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground sm:flex-1">
+                                            <span className="w-8 shrink-0 sm:w-auto">{filter.fromLabel}</span>
                                             <Input
                                                 type="date"
                                                 className="min-w-0 flex-1 bg-card text-foreground"
@@ -252,8 +255,8 @@ export function FilterBar({
                                                 }
                                             />
                                         </label>
-                                        <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-muted-foreground">
-                                            <span className="shrink-0">{filter.toLabel}</span>
+                                        <label className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground sm:flex-1">
+                                            <span className="w-8 shrink-0 sm:w-auto">{filter.toLabel}</span>
                                             <Input
                                                 type="date"
                                                 className="min-w-0 flex-1 bg-card text-foreground"
@@ -344,7 +347,7 @@ export function FilterBarSkeleton({
                 {Array.from({ length: filters }, (_, index) => (
                     <Skeleton key={index} className={cn("h-10 rounded-md", FILTER_WIDTH)} />
                 ))}
-                {withDateRange && <Skeleton className={cn("col-span-2 h-10 rounded-md", DATE_RANGE_WIDTH)} />}
+                {withDateRange && <Skeleton className={cn("col-span-2 h-22 rounded-md sm:h-10", DATE_RANGE_WIDTH)} />}
                 {withSort && (
                     <Skeleton className={cn("h-10 rounded-md", FILTER_WIDTH, !alwaysShowSort && "md:hidden")} />
                 )}
