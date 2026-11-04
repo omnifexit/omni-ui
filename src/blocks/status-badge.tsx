@@ -1,12 +1,13 @@
 import type { ComponentProps } from "react";
 import { cn } from "../lib/utils";
 
-export type StatusTone = "success" | "warning" | "info" | "danger" | "neutral";
+export type StatusTone = "success" | "warning" | "info" | "special" | "danger" | "neutral";
 
 const tones: Record<StatusTone, string> = {
     success: "bg-success text-success-foreground",
     warning: "bg-warning text-warning-foreground",
     info: "bg-info text-info-foreground",
+    special: "bg-special text-special-foreground",
     danger: "bg-destructive/10 text-destructive",
     neutral: "bg-muted text-muted-foreground",
 };

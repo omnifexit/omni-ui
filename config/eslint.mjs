@@ -31,6 +31,16 @@ const config = [
                     message: "Use text-2xs, text-xs or another size from the theme.",
                 },
                 {
+                    selector:
+                        "Literal[value=/\\\\b(text|bg|border|ring|fill|stroke)(-[tblrxy])?-(red|green|blue|yellow|orange|amber|emerald|rose|purple|pink|indigo|slate|gray|zinc|sky|teal|violet|lime|cyan|fuchsia)-\\\\d/]",
+                    message: "Use a theme colour like text-destructive or bg-success, or StatusBadge.",
+                },
+                {
+                    selector:
+                        "TemplateElement[value.raw=/\\\\b(text|bg|border|ring|fill|stroke)(-[tblrxy])?-(red|green|blue|yellow|orange|amber|emerald|rose|purple|pink|indigo|slate|gray|zinc|sky|teal|violet|lime|cyan|fuchsia)-\\\\d/]",
+                    message: "Use a theme colour like text-destructive or bg-success, or StatusBadge.",
+                },
+                {
                     selector: "JSXOpeningElement[name.name='Label'] > JSXAttribute[name.name='className']",
                     message: "Label has one look. Put layout classes on the element around it.",
                 },
