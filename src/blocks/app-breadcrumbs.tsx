@@ -24,7 +24,12 @@ import { UiLink } from "./ui-link";
 
 type Name = string | null | undefined;
 
-const NamesContext = createContext<{ names: Name[]; setNames: Dispatch<SetStateAction<Name[]>> } | null>(null);
+const NamesContext = createContext<{
+    names: Name[];
+    setNames: Dispatch<SetStateAction<Name[]>>;
+    hasNoItem: boolean;
+    setHasNoItem: Dispatch<SetStateAction<boolean>>;
+} | null>(null);
 
 // A number, with or without a readable part ("60", "60-printer-kapot"), or a UUID, with or without one.
 const ID_SEGMENT = /^(\d+(-|$)|[a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12})/i;
@@ -32,9 +37,20 @@ const ID_SEGMENT = /^(\d+(-|$)|[a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12})/i;
 /** Holds the names the current page gives its breadcrumb. Wrap the layout that shows `AppBreadcrumbs`. */
 export function BreadcrumbNamesProvider({ children }: { children: ReactNode }) {
     const [names, setNames] = useState<Name[]>([]);
-    const value = useMemo(() => ({ names, setNames }), [names]);
+    const [hasNoItem, setHasNoItem] = useState(false);
+    const value = useMemo(() => ({ names, setNames, hasNoItem, setHasNoItem }), [names, hasNoItem]);
 
     return <NamesContext.Provider value={value}>{children}</NamesContext.Provider>;
+}
+
+/** The page couldn't load its item, so the breadcrumb stops waiting for a name. Used by the error and not-found states. */
+export function useBreadcrumbHasNoItem() {
+    const setHasNoItem = useContext(NamesContext)?.setHasNoItem;
+
+    useEffect(() => {
+        setHasNoItem?.(true);
+        return () => setHasNoItem?.(false);
+    }, [setHasNoItem]);
 }
 
 /**
@@ -63,14 +79,19 @@ interface AppBreadcrumbsProps {
 
 /** On phones only the last two parts show, so the bar never gets wider than the screen. */
 export function AppBreadcrumbs({ pathname, homeLabel, labels, hasNoPage }: AppBreadcrumbsProps) {
-    const names = useContext(NamesContext)?.names ?? [];
+    const context = useContext(NamesContext);
+    const names = context?.names ?? [];
     const segments = pathname.split("/").filter(Boolean);
 
     let idCount = 0;
     const crumbs = segments.flatMap((segment, index) => {
         const href = `/${segments.slice(0, index + 1).join("/")}`;
 
-        if (ID_SEGMENT.test(segment)) return [{ href, name: names[idCount++] ?? null, isId: true }];
+        if (ID_SEGMENT.test(segment)) {
+            const name = names[idCount++] ?? null;
+
+            return !name && context?.hasNoItem ? [] : [{ href, name, isId: true }];
+        }
 
         return labels[segment] ? [{ href, name: labels[segment], isId: false }] : [];
     });

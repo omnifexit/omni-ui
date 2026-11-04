@@ -3,6 +3,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { AlertCircle, ArrowLeft, Inbox, SearchX } from "lucide-react";
 import { Button } from "../ui/button";
+import { useBreadcrumbHasNoItem } from "./app-breadcrumbs";
 import { UiLink } from "./ui-link";
 
 interface StateProps {
@@ -40,6 +41,8 @@ export function ErrorState({
     retryLabel?: ReactNode;
     onRetry?: () => void;
 }) {
+    useBreadcrumbHasNoItem();
+
     return (
         <State
             icon={AlertCircle}
@@ -64,6 +67,8 @@ export function NotFoundState({
     backHref: string;
     backLabel: ReactNode;
 }) {
+    useBreadcrumbHasNoItem();
+
     return (
         <State
             icon={SearchX}
