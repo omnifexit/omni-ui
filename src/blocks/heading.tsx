@@ -5,6 +5,7 @@ const sizes = {
     lg: "text-3xl font-bold tracking-tight",
     md: "text-lg font-semibold",
     sm: "text-sm font-semibold",
+    xs: "text-xs font-semibold tracking-wider text-muted-foreground uppercase",
 };
 
 interface HeadingProps extends ComponentProps<"h2"> {
