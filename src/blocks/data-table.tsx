@@ -206,14 +206,20 @@ export function DataTable<Row>({
                                   {(onCard("meta").length > 0 || onCard("metaEnd").length > 0) && (
                                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                           {onCard("meta").map((column) => (
-                                              <div key={column.key} className={cn("flex min-w-0 items-center", above(column))}>
+                                              <div
+                                                  key={column.key}
+                                                  className={cn("flex min-w-0 items-center", above(column))}
+                                              >
                                                   {content(column)}
                                               </div>
                                           ))}
                                           {onCard("metaEnd").length > 0 && (
                                               <div className="ml-auto flex min-w-0 items-center gap-1.5">
                                                   {onCard("metaEnd").map((column) => (
-                                                      <div key={column.key} className={cn("flex min-w-0 items-center", above(column))}>
+                                                      <div
+                                                          key={column.key}
+                                                          className={cn("flex min-w-0 items-center", above(column))}
+                                                      >
                                                           {content(column)}
                                                       </div>
                                                   ))}
