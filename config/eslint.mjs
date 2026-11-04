@@ -10,6 +10,29 @@ const config = [
                         { name: "lucide-react", message: "Import icons from @omnifexit/omni-ui/icons." },
                         { name: "sonner", message: "Import toast from @omnifexit/omni-ui/toast." },
                     ],
+                    patterns: [
+                        {
+                            group: ["@/components/ui/*"],
+                            message: "Import components from @omnifexit/omni-ui, or add the missing one there.",
+                        },
+                    ],
+                },
+            ],
+            // Add a rule here only once its pattern is gone from every app, so it never blocks unrelated work.
+            // A real exception gets an eslint-disable comment with the reason.
+            "no-restricted-syntax": [
+                "error",
+                {
+                    selector: "Literal[value=/text-\\[[0-9.]+(px|rem)\\]/]",
+                    message: "Use text-2xs, text-xs or another size from the theme.",
+                },
+                {
+                    selector: "TemplateElement[value.raw=/text-\\[[0-9.]+(px|rem)\\]/]",
+                    message: "Use text-2xs, text-xs or another size from the theme.",
+                },
+                {
+                    selector: "JSXOpeningElement[name.name='DialogContent']",
+                    message: "Forms get their own page. Short confirmations use ConfirmDialog.",
                 },
             ],
         },
