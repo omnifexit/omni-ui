@@ -1,0 +1,52 @@
+{
+    "Common": {
+        "all": "Alle",
+        "clearFilters": "Wissen",
+        "removeFilter": "Filter verwijderen",
+        "sortBy": "Sorteren",
+        "newest": "Nieuwste",
+        "oldest": "Oudste",
+        "previous": "Vorige",
+        "next": "Volgende",
+        "pageOf": "Pagina {page} van {lastPage} ({total} totaal)",
+        "loading": "Laden...",
+        "loadingSession": "Sessie laden...",
+        "cancel": "Annuleren",
+        "save": "Opslaan",
+        "saveChanges": "Wijzigingen opslaan",
+        "delete": "Verwijderen",
+        "confirm": "Bevestigen",
+        "search": "Zoeken",
+        "noResults": "Geen resultaten gevonden.",
+        "error": "Er is een fout opgetreden.",
+        "success": "Gelukt!",
+        "edit": "Bewerken",
+        "name": "Naam",
+        "actions": "Acties",
+        "saving": "Opslaan...",
+        "deleting": "Verwijderen...",
+        "created": "Aangemaakt"
+    },
+    "Auth": {
+        "signIn": "Inloggen",
+        "signInWithOmnifexit": "Inloggen met OmnifexIT",
+        "loginFailed": "Inloggen is niet afgerond",
+        "loginFailedDescription": "Probeer het nog eens."
+    },
+    "Dashboard": {
+        "title": "Dashboard",
+        "overview": "Overzicht",
+        "appSwitcher": "OmnifexIT Suite",
+        "apps": "Applicaties",
+        "tools": "Tools & Beheer",
+        "currentApp": "Huidig",
+        "loading": "Laden...",
+        "noAppsAvailable": "Geen applicaties beschikbaar",
+        "settings": "Instellingen",
+        "logout": "Uitloggen"
+    },
+    "LocaleSwitcher": {
+        "en": "English",
+        "nl": "Nederlands"
+    }
+}

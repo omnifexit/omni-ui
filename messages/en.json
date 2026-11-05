@@ -1,0 +1,52 @@
+{
+    "Common": {
+        "all": "All",
+        "clearFilters": "Clear",
+        "removeFilter": "Remove filter",
+        "sortBy": "Sort",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "previous": "Previous",
+        "next": "Next",
+        "pageOf": "Page {page} of {lastPage} ({total} total)",
+        "loading": "Loading...",
+        "loadingSession": "Loading session...",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saveChanges": "Save Changes",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "search": "Search",
+        "noResults": "No results found.",
+        "error": "An error occurred.",
+        "success": "Success!",
+        "edit": "Edit",
+        "name": "Name",
+        "actions": "Actions",
+        "saving": "Saving...",
+        "deleting": "Deleting...",
+        "created": "Created"
+    },
+    "Auth": {
+        "signIn": "Sign in",
+        "signInWithOmnifexit": "Sign In with OmnifexIT",
+        "loginFailed": "Login did not finish",
+        "loginFailedDescription": "Please try again."
+    },
+    "Dashboard": {
+        "title": "Dashboard",
+        "overview": "Overview",
+        "appSwitcher": "OmnifexIT Suite",
+        "apps": "Applications",
+        "tools": "Tools & Admin",
+        "currentApp": "Current",
+        "loading": "Loading...",
+        "noAppsAvailable": "No applications available",
+        "settings": "Settings",
+        "logout": "Log out"
+    },
+    "LocaleSwitcher": {
+        "en": "English",
+        "nl": "Nederlands"
+    }
+}
