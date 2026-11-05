@@ -3,7 +3,7 @@ import { cn } from "../lib/utils";
 
 export type StatusTone = "success" | "warning" | "info" | "special" | "danger" | "neutral";
 
-const tones: Record<StatusTone, string> = {
+export const statusToneClasses: Record<StatusTone, string> = {
     success: "bg-success text-success-foreground",
     warning: "bg-warning text-warning-foreground",
     info: "bg-info text-info-foreground",
@@ -17,7 +17,7 @@ export function StatusBadge({ tone = "neutral", className, ...props }: Component
         <span
             className={cn(
                 "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap",
-                tones[tone],
+                statusToneClasses[tone],
                 className,
             )}
             {...props}
