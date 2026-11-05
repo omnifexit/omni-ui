@@ -16,7 +16,7 @@ export interface DataTableColumn<Row> {
     align?: "left" | "right" | "center";
     className?: string;
     /** Where this goes on a phone's card. A field shows its header next to its value. */
-    card?: "title" | "subtitle" | "aside" | "field" | "meta" | "metaEnd" | "hidden";
+    card?: "title" | "subtitle" | "inline" | "aside" | "field" | "meta" | "metaEnd" | "hidden";
     /** What to show on the card instead of `cell`. */
     cardCell?: (row: Row) => ReactNode;
     /** Only on the card, like a detail that doesn't need its own column. */
@@ -169,10 +169,27 @@ export function DataTable<Row>({
                                               </div>
                                           ))}
                                       </div>
-                                      {(rowActions || onCard("aside").length > 0) && (
-                                          <div className="flex max-w-1/2 shrink-0 flex-col items-end gap-1.5">
+                                      {(rowActions || onCard("aside").length > 0 || onCard("inline").length > 0) && (
+                                          <div className="flex max-w-3/5 shrink-0 flex-col items-end gap-1.5">
+                                              {onCard("inline").length > 0 && !rowActions && (
+                                                  <div className="flex items-center gap-1.5">
+                                                      {onCard("inline").map((column) => (
+                                                          <div
+                                                              key={column.key}
+                                                              className={cn("min-w-0", above(column))}
+                                                          >
+                                                              {content(column)}
+                                                          </div>
+                                                      ))}
+                                                  </div>
+                                              )}
                                               {rowActions && (
                                                   <div className="relative z-10 flex items-center gap-1">
+                                                      {onCard("inline").map((column) => (
+                                                          <div key={column.key} className="mr-1 min-w-0">
+                                                              {content(column)}
+                                                          </div>
+                                                      ))}
                                                       {rowActions(row)}
                                                   </div>
                                               )}
