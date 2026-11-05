@@ -23,7 +23,8 @@
     },
     "files": [
         "src",
-        "config"
+        "config",
+        "messages"
     ],
     "dependencies": {
         "class-variance-authority": "^0.7.1",
